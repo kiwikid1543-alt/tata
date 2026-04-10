@@ -162,7 +162,7 @@ class _NicknameViewState extends ConsumerState<NicknameView> {
 
                   authNotifier.setNickname(nickname);
                 },
-                child: const Text('다음으로'),
+                child: const Text('다음'),
               ),
               const SizedBox(height: 40),
             ],

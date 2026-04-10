@@ -92,7 +92,7 @@ class QualificationView extends ConsumerWidget {
                 child: Column(
                   children: [
                     Icon(
-                      Icons.badge_outlined,
+                      Icons.check_circle,
                       size: 48,
                       color: Theme.of(context).primaryColor,
                     ),
@@ -139,7 +139,7 @@ class QualificationView extends ConsumerWidget {
                     : () => authNotifier.completeSignup(),
                 child: authState.step == AuthStep.authenticating
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('가입 완료'),
+                    : const Text('다음'),
               ),
               const SizedBox(height: 40),
             ],
