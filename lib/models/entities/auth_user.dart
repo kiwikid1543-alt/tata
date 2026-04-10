@@ -4,14 +4,14 @@ class AuthUser {
   final String uid;
   final String? displayName;
   final String? phoneNumber;
-  final String? nearestCenterName;
+  final String? myCenterName;
   final bool isQualified;
 
   AuthUser({
     required this.uid,
     this.displayName,
     this.phoneNumber,
-    this.nearestCenterName,
+    this.myCenterName,
     this.isQualified = true,
   });
 
@@ -30,7 +30,7 @@ class AuthUser {
       uid: json['uid'] as String,
       displayName: json['displayName'] as String?,
       phoneNumber: json['phoneNumber'] as String?,
-      nearestCenterName: json['nearestCenterName'] as String?,
+      myCenterName: json['myCenterName'] as String?,
       isQualified: json['isQualified'] as bool? ?? true,
     );
   }
@@ -41,7 +41,7 @@ class AuthUser {
       'uid': uid,
       'displayName': displayName,
       'phoneNumber': phoneNumber,
-      'nearestCenterName': nearestCenterName,
+      'myCenterName': myCenterName,
       'isQualified': isQualified,
     };
   }
@@ -51,14 +51,14 @@ class AuthUser {
     String? uid,
     String? displayName,
     String? phoneNumber,
-    String? nearestCenterName,
+    String? myCenterName,
     bool? isQualified,
   }) {
     return AuthUser(
       uid: uid ?? this.uid,
       displayName: displayName ?? this.displayName,
       phoneNumber: phoneNumber ?? this.phoneNumber,
-      nearestCenterName: nearestCenterName ?? this.nearestCenterName,
+      myCenterName: myCenterName ?? this.myCenterName,
       isQualified: isQualified ?? this.isQualified,
     );
   }

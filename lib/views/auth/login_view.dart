@@ -78,7 +78,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                 enabled: true,
                 decoration: const InputDecoration(
                   prefixIcon: Icon(Icons.phone_android, color: Colors.grey),
-                  hintText: '전화번호를 입력해주세요',
+                  hintText: '01012345678 입력하세요',
                 ),
               ),
               const SizedBox(height: 16),
@@ -97,7 +97,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                       maxLength: 6,
                       autofocus: true,
                       decoration: const InputDecoration(
-                        hintText: '인증번호 6자리 입력',
+                        hintText: '123456 입력하세요',
                         prefixIcon: Icon(
                           Icons.lock_outline,
                           color: Colors.grey,

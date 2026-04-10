@@ -1,11 +1,11 @@
-// lib/views/auth/recommended_center_view.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../notifier/auth_notifier.dart';
 import '../../notifier/center_notifier.dart';
 import '../../core/services/location_service.dart';
 import 'package:geolocator/geolocator.dart';
+import '../../models/entities/center_entity.dart';
+import 'center_selection_view.dart';
 
 class RecommendedCenterView extends ConsumerStatefulWidget {
   const RecommendedCenterView({super.key});
@@ -16,6 +16,8 @@ class RecommendedCenterView extends ConsumerStatefulWidget {
 }
 
 class _RecommendedCenterViewState extends ConsumerState<RecommendedCenterView> {
+  CenterEntity? _manuallySelectedCenter;
+
   @override
   void initState() {
     super.initState();
@@ -42,7 +44,20 @@ class _RecommendedCenterViewState extends ConsumerState<RecommendedCenterView> {
 
   void _startCenterSearch() {
     if (!mounted) return;
-    ref.read(centerNotifierProvider.notifier).findAndSaveNearestCenter();
+    ref.read(centerNotifierProvider.notifier).findNearestCenter();
+  }
+
+  Future<void> _pickCenter() async {
+    final result = await Navigator.push<CenterEntity>(
+      context,
+      MaterialPageRoute(builder: (context) => const CenterSelectionView()),
+    );
+
+    if (result != null) {
+      setState(() {
+        _manuallySelectedCenter = result;
+      });
+    }
   }
 
   @override
@@ -50,6 +65,9 @@ class _RecommendedCenterViewState extends ConsumerState<RecommendedCenterView> {
     final centerState = ref.watch(centerNotifierProvider);
     final authUser = ref.watch(authNotifierProvider).user;
     final userName = authUser?.displayName ?? '고객';
+
+    // 표시할 최종 센터 결정
+    final displayCenter = _manuallySelectedCenter ?? centerState.value;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -116,29 +134,28 @@ class _RecommendedCenterViewState extends ConsumerState<RecommendedCenterView> {
               ),
               const SizedBox(height: 12),
 
-              // 동적 메시지 섹션 (RichText로 특정 부분 강조)
-              centerState.when(
-                data: (center) => Text.rich(
+              // 동적 메시지 섹션
+              if (displayCenter != null)
+                Text.rich(
                   TextSpan(
                     children: [
-                      if (center != null) ...[
-                        const TextSpan(
-                          text: '고객님과 가장 가까운 센터는\n',
-                          style: TextStyle(color: Colors.black87),
+                      TextSpan(
+                        text: _manuallySelectedCenter != null
+                            ? '선택하신 센터는\n'
+                            : '고객님과 가장 가까운 센터는\n',
+                        style: const TextStyle(color: Colors.black87),
+                      ),
+                      TextSpan(
+                        text: displayCenter.name,
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.w800,
                         ),
-                        TextSpan(
-                          text: center.name,
-                          style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontWeight: FontWeight.w800, // 더 두껍게
-                          ),
-                        ),
-                        const TextSpan(
-                          text: ' 이에요',
-                          style: TextStyle(color: Colors.black87),
-                        ),
-                      ] else
-                        const TextSpan(text: '가장 가까운 센터를 찾지 못했어요.'),
+                      ),
+                      const TextSpan(
+                        text: ' 이에요',
+                        style: TextStyle(color: Colors.black87),
+                      ),
                     ],
                   ),
                   style: const TextStyle(
@@ -146,30 +163,40 @@ class _RecommendedCenterViewState extends ConsumerState<RecommendedCenterView> {
                     fontWeight: FontWeight.w600,
                     height: 1.4,
                   ),
-                ),
-                loading: () => const Text(
-                  '가장 가까운 센터를\n찾고 있어요...',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    height: 1.4,
+                )
+              else
+                centerState.when(
+                  data: (_) => const Text(
+                    '가장 가까운 센터를 찾지 못했어요.',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
+                      height: 1.4,
+                    ),
+                  ),
+                  loading: () => const Text(
+                    '가장 가까운 센터를\n찾고 있어요...',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      height: 1.4,
+                    ),
+                  ),
+                  error: (err, _) => const Text(
+                    '위치 정보를 확인할 수 없어\n센터를 추천해드리지 못했어요.',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      height: 1.4,
+                      color: Colors.grey,
+                    ),
                   ),
                 ),
-                error: (err, _) => const Text(
-                  '위치 정보를 확인할 수 없어\n센터를 추천해드리지 못했어요.',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    height: 1.4,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
 
               const Spacer(),
 
-              // 센터 상세 정보 카드 (데이터가 있을 때만 노출)
-              if (centerState.hasValue && centerState.value != null)
+              // 센터 상세 정보 카드
+              if (displayCenter != null)
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
@@ -191,7 +218,7 @@ class _RecommendedCenterViewState extends ConsumerState<RecommendedCenterView> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            '직선거리 약 ${centerState.value!.distanceInKm?.toStringAsFixed(1)}km',
+                            '직선거리 약 ${displayCenter.distanceInKm?.toStringAsFixed(1) ?? "0"}km',
                             style: TextStyle(
                               color: Theme.of(context).primaryColor,
                               fontWeight: FontWeight.bold,
@@ -201,7 +228,7 @@ class _RecommendedCenterViewState extends ConsumerState<RecommendedCenterView> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        centerState.value!.address,
+                        displayCenter.address,
                         style: const TextStyle(
                           fontSize: 15,
                           color: Colors.black87,
@@ -214,7 +241,7 @@ class _RecommendedCenterViewState extends ConsumerState<RecommendedCenterView> {
                           const Icon(Icons.phone, color: Colors.grey, size: 16),
                           const SizedBox(width: 8),
                           Text(
-                            centerState.value!.phone,
+                            displayCenter.phone,
                             style: const TextStyle(
                               color: Colors.grey,
                               fontSize: 14,
@@ -226,12 +253,37 @@ class _RecommendedCenterViewState extends ConsumerState<RecommendedCenterView> {
                   ),
                 ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
+
+              // 다른 센터 선택 버튼
+              Center(
+                child: TextButton(
+                  onPressed: _pickCenter,
+                  child: Text(
+                    '다른 센터 선택하기',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      decoration: TextDecoration.underline,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 8),
 
               // 하단 버튼
               ElevatedButton(
-                onPressed: centerState.value != null
-                    ? () => ref.read(authNotifierProvider.notifier).finishOnboarding()
+                onPressed: displayCenter != null
+                    ? () async {
+                        // 선택된 센터의 이름을 저장
+                        await ref
+                            .read(authNotifierProvider.notifier)
+                            .saveMyCenter(displayCenter.name);
+                        if (mounted) {
+                          ref.read(authNotifierProvider.notifier).finishOnboarding();
+                        }
+                      }
                     : null,
                 child: const Text('시작하기'),
               ),

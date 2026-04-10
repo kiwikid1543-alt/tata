@@ -33,7 +33,7 @@ class LocationSelectionView extends ConsumerWidget {
             onTap: () async {
               await locationNotifier.useRealLocation();
               if (context.mounted) {
-                ref.read(centerNotifierProvider.notifier).findAndSaveNearestCenter();
+                ref.read(centerNotifierProvider.notifier).findNearestCenter();
                 Navigator.pop(context);
               }
             },
@@ -50,7 +50,7 @@ class LocationSelectionView extends ConsumerWidget {
             isSelected: locationState.isMocked && locationState.name == '서울시청',
             onTap: () {
               locationNotifier.setMockLocation('서울시청', 37.5665, 126.9780);
-              ref.read(centerNotifierProvider.notifier).findAndSaveNearestCenter();
+              ref.read(centerNotifierProvider.notifier).findNearestCenter();
               Navigator.pop(context);
             },
           ),
@@ -62,7 +62,7 @@ class LocationSelectionView extends ConsumerWidget {
             isSelected: locationState.isMocked && locationState.name == '대전시청',
             onTap: () {
               locationNotifier.setMockLocation('대전시청', 36.3504, 127.3845);
-              ref.read(centerNotifierProvider.notifier).findAndSaveNearestCenter();
+              ref.read(centerNotifierProvider.notifier).findNearestCenter();
               Navigator.pop(context);
             },
           ),
@@ -74,7 +74,7 @@ class LocationSelectionView extends ConsumerWidget {
             isSelected: locationState.isMocked && locationState.name == '인천시청',
             onTap: () {
               locationNotifier.setMockLocation('인천시청', 37.4563, 126.7052);
-              ref.read(centerNotifierProvider.notifier).findAndSaveNearestCenter();
+              ref.read(centerNotifierProvider.notifier).findNearestCenter();
               Navigator.pop(context);
             },
           ),
@@ -86,7 +86,7 @@ class LocationSelectionView extends ConsumerWidget {
             isSelected: locationState.isMocked && locationState.name == '강원도청',
             onTap: () {
               locationNotifier.setMockLocation('강원도청', 37.8853, 127.7298);
-              ref.read(centerNotifierProvider.notifier).findAndSaveNearestCenter();
+              ref.read(centerNotifierProvider.notifier).findNearestCenter();
               Navigator.pop(context);
             },
           ),

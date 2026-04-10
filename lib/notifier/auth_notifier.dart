@@ -193,11 +193,11 @@ class AuthNotifier extends _$AuthNotifier {
     state = state.copyWith(step: AuthStep.success);
   }
 
-  /// 가장 가까운 센터 정보 업데이트
-  Future<void> updateNearestCenter(String centerName) async {
+  /// 내 센터 정보 저장 및 Firestore 동기화
+  Future<void> saveMyCenter(String centerName) async {
     if (state.user == null) return;
 
-    final updatedUser = state.user!.copyWith(nearestCenterName: centerName);
+    final updatedUser = state.user!.copyWith(myCenterName: centerName);
     state = state.copyWith(user: updatedUser);
 
     // Firestore에 동기화

@@ -6,7 +6,7 @@ part of 'center_notifier.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$centerNotifierHash() => r'a13eda8df3c35a47b8466deac6fdc0fc087f18e6';
+String _$centerNotifierHash() => r'f5f6925fa7724403acba52fe61793477578af83a';
 
 /// See also [CenterNotifier].
 @ProviderFor(CenterNotifier)
