@@ -154,29 +154,35 @@ class AuthNotifier extends _$AuthNotifier {
     }
   }
 
-  /// 닉네임 설정 (온보딩)
+  /// 닉네임 설정 (온보딩 Step 1) -> 자격 확인으로 이동
   void setNickname(String nickname) {
     if (state.user == null) return;
     
     state = state.copyWith(
       user: state.user!.copyWith(displayName: nickname),
-      step: AuthStep.onboardingRecommendation,
+      step: AuthStep.onboardingQualification, // 다음 단계: 자격 확인
     );
   }
 
-  /// 자격 확인 및 최종 가입 완료
+  /// 자격 확인 및 최종 가입 완료 (온보딩 Step 2) -> 추천으로 이동
   Future<void> completeSignup() async {
     if (state.user == null) return;
 
     state = state.copyWith(step: AuthStep.authenticating);
     
+    // 자격 확인 여부를 true로 설정하여 최종 프로필 업데이트
+    final updatedUser = state.user!.copyWith(isQualified: true);
+    
     final repository = ref.read(authRepositoryProvider);
-    final result = await repository.updateProfile(state.user!);
+    final result = await repository.updateProfile(updatedUser);
 
     switch (result) {
       case Success():
-        // 가입 완료 후 추천 단계로 진입
-        state = state.copyWith(step: AuthStep.onboardingRecommendation);
+        // 가입 완료 후 추천 단계(Step 3)로 진입
+        state = state.copyWith(
+          user: updatedUser,
+          step: AuthStep.onboardingRecommendation,
+        );
       case Error(failure: final f):
         state = state.copyWith(step: AuthStep.error, errorMessage: f.message);
     }

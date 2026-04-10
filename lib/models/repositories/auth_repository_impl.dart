@@ -116,7 +116,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Result<void>> updateProfile(AuthUser user) async {
     try {
       await _firestore.collection('users').doc(user.uid).set(
-            user.toMap(),
+            user.toFirestore(),
             SetOptions(merge: true),
           );
       return Result.success(null);
