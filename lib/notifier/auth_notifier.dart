@@ -9,6 +9,7 @@ part 'auth_notifier.g.dart';
 
 enum AuthStep {
   initial,
+  loading, // 초기 앱 구동 시 세션 체크 중
   smsSent,
   authenticating,
   success,
@@ -49,7 +50,35 @@ class AuthState {
 class AuthNotifier extends _$AuthNotifier {
   @override
   AuthState build() {
-    return const AuthState();
+    // 앱 시작 시 현재 로그인된 유저가 있는지 확인
+    Future.microtask(() => _initSession());
+    return const AuthState(step: AuthStep.loading);
+  }
+
+  /// 초기 세션 체크 로직
+  Future<void> _initSession() async {
+    final repository = ref.read(authRepositoryProvider);
+    final currentUser = repository.currentUser;
+
+    if (currentUser != null) {
+      // 기존 세션이 있다면 프로필 동기화 시도
+      final result = await repository.getProfile(currentUser.uid);
+      switch (result) {
+        case Success(data: final profile):
+          if (profile != null && profile.displayName != null && profile.displayName!.isNotEmpty) {
+            state = state.copyWith(step: AuthStep.success, user: profile);
+          } else {
+            // 프로필이 불완전하면 온보딩으로 유도
+            state = state.copyWith(step: AuthStep.onboardingNickname, user: currentUser);
+          }
+        case Error():
+          // 프로필 로드 실패 시 일단 로그인 화면으로 (안전하게)
+          state = state.copyWith(step: AuthStep.initial);
+      }
+    } else {
+      // 로그인 세션 없음
+      state = state.copyWith(step: AuthStep.initial);
+    }
   }
 
   /// SMS 인증번호 발송 요청
@@ -106,7 +135,7 @@ class AuthNotifier extends _$AuthNotifier {
               // 3. 닉네임이 없는 회원 (신규 가입 절차 필요)
               state = state.copyWith(
                 step: AuthStep.onboardingNickname,
-                user: authUser, // Auth 정보만 있는 유저 객체 유지
+                user: authUser,
               );
             }
           case Error(failure: final f):
@@ -149,6 +178,6 @@ class AuthNotifier extends _$AuthNotifier {
   Future<void> logout() async {
     final repository = ref.read(authRepositoryProvider);
     await repository.signOut();
-    state = const AuthState();
+    state = const AuthState(step: AuthStep.initial);
   }
 }
