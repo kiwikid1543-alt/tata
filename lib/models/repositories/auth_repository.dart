@@ -19,6 +19,12 @@ abstract interface class AuthRepository {
   /// 로그아웃
   Future<Result<void>> signOut();
 
-  /// 현재 로그인된 사용자 정보 가져오기
+  /// 현재 로그인된 사용자 정보 가져오기 (Firebase Auth 기준)
   AuthUser? get currentUser;
+
+  /// Firestore에서 유저 프로필 정보 가져오기
+  Future<Result<AuthUser?>> getProfile(String uid);
+
+  /// Firestore에 유저 프로필 정보 저장/업데이트
+  Future<Result<void>> updateProfile(AuthUser user);
 }

@@ -23,7 +23,25 @@ class AuthUser {
     );
   }
 
-  /// Firebase User 객체로부터 변환하는 팩토리 메서드 (선택 사항)
+  /// Firestore 데이터에서 변환
+  factory AuthUser.fromFirestore(Map<String, dynamic> data) {
+    return AuthUser(
+      uid: data['uid'] as String,
+      phoneNumber: data['phoneNumber'] as String?,
+      displayName: data['displayName'] as String?,
+    );
+  }
+
+  /// Firestore에 저장할 맵으로 변환
+  Map<String, dynamic> toMap() {
+    return {
+      'uid': uid,
+      'phoneNumber': phoneNumber,
+      'displayName': displayName,
+    };
+  }
+
+  /// Firebase User 객체로부터 변환
   factory AuthUser.fromFirebase(dynamic firebaseUser) {
     return AuthUser(
       uid: firebaseUser.uid,

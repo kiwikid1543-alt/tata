@@ -34,6 +34,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
     ref.listen(authNotifierProvider, (previous, next) {
       if (next.step == AuthStep.success) {
         context.go('/home');
+      } else if (next.step == AuthStep.onboardingNickname) {
+        context.go('/nickname');
       }
     });
 

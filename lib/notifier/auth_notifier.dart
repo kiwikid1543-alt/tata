@@ -7,7 +7,15 @@ import '../models/repositories/auth_repository_impl.dart';
 
 part 'auth_notifier.g.dart';
 
-enum AuthStep { initial, smsSent, authenticating, success, error }
+enum AuthStep {
+  initial,
+  smsSent,
+  authenticating,
+  success,
+  error,
+  onboardingNickname,
+  onboardingQualification
+}
 
 class AuthState {
   final AuthStep step;
@@ -48,12 +56,10 @@ class AuthNotifier extends _$AuthNotifier {
   Future<void> requestOtp(String phoneNumber) async {
     state = state.copyWith(step: AuthStep.authenticating, errorMessage: null);
 
-    // 전화번호 정규화 (예: 01012345678 -> +821012345678)
-    var normalizedPhone = phoneNumber.replaceAll(RegExp(r'[^0-9]'), ''); // 숫자만 남김
+    var normalizedPhone = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
     if (normalizedPhone.startsWith('0')) {
       normalizedPhone = '+82${normalizedPhone.substring(1)}';
     } else if (!normalizedPhone.startsWith('+')) {
-      // 국가번호가 없고 0으로 시작하지도 않는 경우 기본값 +82 적용
       normalizedPhone = '+82$normalizedPhone';
     }
 
@@ -61,7 +67,7 @@ class AuthNotifier extends _$AuthNotifier {
     final result = await repository.verifyPhoneNumber(
       phoneNumber: normalizedPhone,
       onCodeAutoRetrieval: (code) {
-        // 자동 완성 기능 (추후 UI 연동 가능)
+        // 자동 완성
       },
     );
 
@@ -73,13 +79,13 @@ class AuthNotifier extends _$AuthNotifier {
     }
   }
 
-  /// OTP를 이용한 최종 로그인
+  /// OTP를 이용한 최종 로그인 및 가입 분기
   Future<void> loginWithOtp(String smsCode) async {
     final vId = state.verificationId;
     if (vId == null) return;
 
     state = state.copyWith(step: AuthStep.authenticating);
-    
+
     final repository = ref.read(authRepositoryProvider);
     final result = await repository.signInWithSms(
       verificationId: vId,
@@ -87,8 +93,53 @@ class AuthNotifier extends _$AuthNotifier {
     );
 
     switch (result) {
-      case Success(data: final user):
-        state = state.copyWith(step: AuthStep.success, user: user);
+      case Success(data: final authUser):
+        // 1. 인증 성공 후 Firestore 프로필 확인
+        final profileResult = await repository.getProfile(authUser.uid);
+
+        switch (profileResult) {
+          case Success(data: final profile):
+            if (profile != null && profile.displayName != null && profile.displayName!.isNotEmpty) {
+              // 2. 닉네임까지 있는 회원 -> 로그인 성공
+              state = state.copyWith(step: AuthStep.success, user: profile);
+            } else {
+              // 3. 닉네임이 없는 회원 (신규 가입 절차 필요)
+              state = state.copyWith(
+                step: AuthStep.onboardingNickname,
+                user: authUser, // Auth 정보만 있는 유저 객체 유지
+              );
+            }
+          case Error(failure: final f):
+            state = state.copyWith(step: AuthStep.error, errorMessage: f.message);
+        }
+
+      case Error(failure: final f):
+        state = state.copyWith(step: AuthStep.error, errorMessage: f.message);
+    }
+  }
+
+  /// 닉네임 설정 (온보딩)
+  void setNickname(String nickname) {
+    if (state.user == null) return;
+    
+    state = state.copyWith(
+      user: state.user!.copyWith(displayName: nickname),
+      step: AuthStep.onboardingQualification,
+    );
+  }
+
+  /// 자격 확인 및 최종 가입 완료
+  Future<void> completeSignup() async {
+    if (state.user == null) return;
+
+    state = state.copyWith(step: AuthStep.authenticating);
+    
+    final repository = ref.read(authRepositoryProvider);
+    final result = await repository.updateProfile(state.user!);
+
+    switch (result) {
+      case Success():
+        state = state.copyWith(step: AuthStep.success);
       case Error(failure: final f):
         state = state.copyWith(step: AuthStep.error, errorMessage: f.message);
     }

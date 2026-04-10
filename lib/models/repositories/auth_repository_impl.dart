@@ -1,6 +1,5 @@
-// lib/models/repositories/auth_repository_impl.dart
-
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../core/utils/failure.dart';
@@ -12,8 +11,9 @@ part 'auth_repository_impl.g.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final FirebaseAuth _auth;
+  final FirebaseFirestore _firestore;
 
-  AuthRepositoryImpl(this._auth);
+  AuthRepositoryImpl(this._auth, this._firestore);
 
   @override
   Future<Result<String>> verifyPhoneNumber({
@@ -26,8 +26,6 @@ class AuthRepositoryImpl implements AuthRepository {
       await _auth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
-          // 자동 인증 성공 시 (안드로이드) - 바로 로그인 시도 가능하지만
-          // 여기서는 복잡성을 줄이기 위해 OTP 코드만 콜백으로 넘김
           if (credential.smsCode != null) {
             onCodeAutoRetrieval(credential.smsCode!);
           }
@@ -47,7 +45,7 @@ class AuthRepositoryImpl implements AuthRepository {
           }
         },
         codeAutoRetrievalTimeout: (String verificationId) {
-          // 타임아웃 처리
+          // 타임아웃
         },
       );
     } catch (e) {
@@ -100,9 +98,38 @@ class AuthRepositoryImpl implements AuthRepository {
     final user = _auth.currentUser;
     return user != null ? AuthUser.fromFirebase(user) : null;
   }
+
+  @override
+  Future<Result<AuthUser?>> getProfile(String uid) async {
+    try {
+      final doc = await _firestore.collection('users').doc(uid).get();
+      if (doc.exists && doc.data() != null) {
+        return Result.success(AuthUser.fromFirestore(doc.data()!));
+      }
+      return Result.success(null);
+    } catch (e) {
+      return Result.failure(Failure('프로필 정보를 가져오지 못했습니다.', originalError: e));
+    }
+  }
+
+  @override
+  Future<Result<void>> updateProfile(AuthUser user) async {
+    try {
+      await _firestore.collection('users').doc(user.uid).set(
+            user.toMap(),
+            SetOptions(merge: true),
+          );
+      return Result.success(null);
+    } catch (e) {
+      return Result.failure(Failure('프로필 정보를 저장하지 못했습니다.', originalError: e));
+    }
+  }
 }
 
 @riverpod
 AuthRepository authRepository(AuthRepositoryRef ref) {
-  return AuthRepositoryImpl(FirebaseAuth.instance);
+  return AuthRepositoryImpl(
+    FirebaseAuth.instance,
+    FirebaseFirestore.instance,
+  );
 }

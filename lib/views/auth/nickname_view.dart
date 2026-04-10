@@ -1,11 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../notifier/auth_notifier.dart';
 
-class NicknameView extends StatelessWidget {
+class NicknameView extends ConsumerStatefulWidget {
   const NicknameView({super.key});
 
   @override
+  ConsumerState<NicknameView> createState() => _NicknameViewState();
+}
+
+class _NicknameViewState extends ConsumerState<NicknameView> {
+  final _nicknameController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nicknameController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // 상태 리슨: 자격 확인 단계로 넘어갔을 때 이동
+    ref.listen(authNotifierProvider, (previous, next) {
+      if (next.step == AuthStep.onboardingQualification) {
+        context.push('/qualification');
+      }
+    });
+
+    final authNotifier = ref.read(authNotifierProvider.notifier);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -63,17 +87,21 @@ class NicknameView extends StatelessWidget {
               const SizedBox(height: 48),
 
               TextField(
+                controller: _nicknameController,
                 autofocus: true,
                 decoration: const InputDecoration(
                   hintText: '닉네임 (2~10자)',
-                  counterText: '사용 가능한 닉네임입니다.',
-                  counterStyle: TextStyle(color: Colors.green, fontSize: 12),
                 ),
               ),
               const Spacer(),
 
               ElevatedButton(
-                onPressed: () => context.push('/qualification'),
+                onPressed: () {
+                  final nickname = _nicknameController.text.trim();
+                  if (nickname.length >= 2) {
+                    authNotifier.setNickname(nickname);
+                  }
+                },
                 child: const Text('다음으로'),
               ),
               const SizedBox(height: 40),

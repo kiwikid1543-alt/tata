@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../notifier/auth_notifier.dart';
 
-class QualificationView extends StatelessWidget {
+class QualificationView extends ConsumerWidget {
   const QualificationView({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // 가입 완료 후 홈으로 이동
+    ref.listen(authNotifierProvider, (previous, next) {
+      if (next.step == AuthStep.success) {
+        context.go('/home');
+      }
+    });
+
+    final authState = ref.watch(authNotifierProvider);
+    final authNotifier = ref.read(authNotifierProvider.notifier);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -97,7 +109,11 @@ class QualificationView extends StatelessWidget {
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('데모 버전에서는 자동으로 인증됩니다.')),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: Theme.of(context).primaryColor,
@@ -113,8 +129,12 @@ class QualificationView extends StatelessWidget {
               const Spacer(),
               
               ElevatedButton(
-                onPressed: () => context.go('/home'),
-                child: const Text('가입 완료'),
+                onPressed: authState.step == AuthStep.authenticating
+                    ? null
+                    : () => authNotifier.completeSignup(),
+                child: authState.step == AuthStep.authenticating
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text('가입 완료'),
               ),
               const SizedBox(height: 40),
             ],
