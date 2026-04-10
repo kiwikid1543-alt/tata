@@ -199,6 +199,13 @@ class AuthNotifier extends _$AuthNotifier {
     await repository.updateProfile(updatedUser);
   }
 
+  /// 이전 단계로 이동 (온보딩)
+  void previousStep() {
+    if (state.step == AuthStep.onboardingRecommendation) {
+      state = state.copyWith(step: AuthStep.onboardingNickname);
+    }
+  }
+
   /// 로그아웃
   Future<void> logout() async {
     final repository = ref.read(authRepositoryProvider);

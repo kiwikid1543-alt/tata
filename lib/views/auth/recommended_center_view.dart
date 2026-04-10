@@ -1,3 +1,5 @@
+// lib/views/auth/recommended_center_view.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../notifier/auth_notifier.dart';
@@ -9,7 +11,8 @@ class RecommendedCenterView extends ConsumerStatefulWidget {
   const RecommendedCenterView({super.key});
 
   @override
-  ConsumerState<RecommendedCenterView> createState() => _RecommendedCenterViewState();
+  ConsumerState<RecommendedCenterView> createState() =>
+      _RecommendedCenterViewState();
 }
 
 class _RecommendedCenterViewState extends ConsumerState<RecommendedCenterView> {
@@ -30,7 +33,8 @@ class _RecommendedCenterViewState extends ConsumerState<RecommendedCenterView> {
       status = await LocationService.requestPermission();
     }
 
-    if (status == LocationPermission.always || status == LocationPermission.whileInUse) {
+    if (status == LocationPermission.always ||
+        status == LocationPermission.whileInUse) {
       // 3. 권한 획득 시 검색 시작
       _startCenterSearch();
     }
@@ -49,13 +53,26 @@ class _RecommendedCenterViewState extends ConsumerState<RecommendedCenterView> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.black,
+            size: 20,
+          ),
+          onPressed: () =>
+              ref.read(authNotifierProvider.notifier).previousStep(),
+        ),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 60),
+              const SizedBox(height: 20),
               // 헤더 섹션
               Text(
                 '$userName님, 환영해요!',
@@ -66,30 +83,57 @@ class _RecommendedCenterViewState extends ConsumerState<RecommendedCenterView> {
                 ),
               ),
               const SizedBox(height: 12),
-              
-              // 동적 메시지 섹션
+
+              // 동적 메시지 섹션 (RichText로 특정 부분 강조)
               centerState.when(
-                data: (center) => Text(
-                  center != null 
-                    ? '$userName님과 가장 가까운 센터는\n[${center.name}] 이에요'
-                    : '가장 가까운 센터를 찾지 못했어요.',
-                  style: TextStyle(
+                data: (center) => Text.rich(
+                  TextSpan(
+                    children: [
+                      if (center != null) ...[
+                        const TextSpan(
+                          text: '고객님과 가장 가까운 센터는\n',
+                          style: TextStyle(color: Colors.black87),
+                        ),
+                        TextSpan(
+                          text: center.name,
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.w800, // 더 두껍게
+                          ),
+                        ),
+                        const TextSpan(
+                          text: ' 이에요',
+                          style: TextStyle(color: Colors.black87),
+                        ),
+                      ] else
+                        const TextSpan(text: '가장 가까운 센터를 찾지 못했어요.'),
+                    ],
+                  ),
+                  style: const TextStyle(
                     fontSize: 20,
-                    color: Theme.of(context).primaryColor,
                     fontWeight: FontWeight.w600,
                     height: 1.4,
                   ),
                 ),
                 loading: () => const Text(
                   '가장 가까운 센터를\n찾고 있어요...',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, height: 1.4),
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    height: 1.4,
+                  ),
                 ),
                 error: (err, _) => const Text(
                   '위치 정보를 확인할 수 없어\n센터를 추천해드리지 못했어요.',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, height: 1.4, color: Colors.grey),
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    height: 1.4,
+                    color: Colors.grey,
+                  ),
                 ),
               ),
-              
+
               const Spacer(),
 
               // 센터 상세 정보 카드 (데이터가 있을 때만 노출)
@@ -97,16 +141,22 @@ class _RecommendedCenterViewState extends ConsumerState<RecommendedCenterView> {
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor.withValues(alpha: 0.05),
+                    color: Theme.of(context).primaryColor.withOpacity(0.05),
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: 0.1)),
+                    border: Border.all(
+                      color: Theme.of(context).primaryColor.withOpacity(0.1),
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.location_on, color: Theme.of(context).primaryColor, size: 18),
+                          Icon(
+                            Icons.location_on,
+                            color: Theme.of(context).primaryColor,
+                            size: 18,
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             '직선거리 약 ${centerState.value!.distanceInKm?.toStringAsFixed(1)}km',
@@ -120,7 +170,11 @@ class _RecommendedCenterViewState extends ConsumerState<RecommendedCenterView> {
                       const SizedBox(height: 16),
                       Text(
                         centerState.value!.address,
-                        style: const TextStyle(fontSize: 15, color: Colors.black87, height: 1.5),
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: Colors.black87,
+                          height: 1.5,
+                        ),
                       ),
                       const SizedBox(height: 12),
                       Row(
@@ -129,7 +183,10 @@ class _RecommendedCenterViewState extends ConsumerState<RecommendedCenterView> {
                           const SizedBox(width: 8),
                           Text(
                             centerState.value!.phone,
-                            style: const TextStyle(color: Colors.grey, fontSize: 14),
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 14,
+                            ),
                           ),
                         ],
                       ),
@@ -151,9 +208,14 @@ class _RecommendedCenterViewState extends ConsumerState<RecommendedCenterView> {
                     backgroundColor: Theme.of(context).primaryColor,
                     foregroundColor: Colors.white,
                     elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
-                  child: const Text('시작하기', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    '시작하기',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
               const SizedBox(height: 24),

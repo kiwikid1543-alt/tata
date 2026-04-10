@@ -42,7 +42,7 @@ GoRouter appRouter(AppRouterRef ref) {
 
       // 3. 로그인이 된 상태 (성공 단계)
       if (step == AuthStep.success) {
-        if (matchedLocation == '/' || matchedLocation == '/login' || matchedLocation == '/signup') {
+        if (matchedLocation != '/home') {
           return '/home';
         }
         return null;
