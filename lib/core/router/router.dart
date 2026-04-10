@@ -1,29 +1,34 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../views/auth/login_view.dart';
 import '../../views/auth/nickname_view.dart';
 import '../../views/auth/qualification_view.dart';
+import '../../views/auth/qualification_view.dart';
 import '../../views/home/home_view.dart';
+import '../../views/splash/splash_view.dart';
 import '../../notifier/auth_notifier.dart';
 
 part 'router.g.dart';
 
 @riverpod
 GoRouter appRouter(AppRouterRef ref) {
-  final authState = ref.watch(authNotifierProvider);
+  final listenable = RouterNotifier(ref);
+  ref.onDispose(() => listenable.dispose());
 
   return GoRouter(
-    // initialLocation을 '/'로 설정하고 스플래시를 처리할 수 있게 함
-    initialLocation: '/login',
-    // GoRouter 객체 재생성을 감지하기 위해 authState를 watch하지만,
-    // redirect 내부에서 최신 상태를 기반으로 판단하므로 안정적입니다.
+    initialLocation: '/', // 스플래시 처리를 위해 루트에서 시작
+    refreshListenable: listenable,
     redirect: (context, state) {
+      final authState = ref.read(authNotifierProvider);
       final step = authState.step;
       final matchedLocation = state.matchedLocation;
 
-      // 1. 초기 로딩 중에는 리다이렉트 하지 않음 (스플래시 화면 유지 등을 위해)
-      if (step == AuthStep.loading) return null;
+      // 1. 초기 로딩 중에는 / (스플래시) 유지
+      if (step == AuthStep.loading) {
+        return matchedLocation == '/' ? null : '/';
+      }
 
       // 2. 로그인이 안 된 상태
       final isNotLoggedIn = step == AuthStep.initial || step == AuthStep.error;
@@ -36,23 +41,23 @@ GoRouter appRouter(AppRouterRef ref) {
 
       // 3. 로그인이 된 상태 (성공 단계)
       if (step == AuthStep.success) {
-        if (matchedLocation == '/login' || matchedLocation == '/signup') {
+        if (matchedLocation == '/' || matchedLocation == '/login' || matchedLocation == '/signup') {
           return '/home';
         }
         return null;
       }
 
-      // 4. 온보딩 단계 강제 리다이렉트
-      if (step == AuthStep.onboardingNickname) {
-        if (matchedLocation != '/nickname') return '/nickname';
-      }
-      if (step == AuthStep.onboardingQualification) {
-        if (matchedLocation != '/qualification') return '/qualification';
+      // 4. 온보딩 단계 가드 (잘못된 접근 차단)
+      final isOnboardingPath = matchedLocation == '/nickname' || matchedLocation == '/qualification';
+      if (isOnboardingPath && isNotLoggedIn) {
+        return '/login';
       }
 
       return null;
     },
     routes: [
+      // 스플래시 화면: 초기 세션 체크 시 보여짐
+      GoRoute(path: '/', builder: (context, state) => const SplashView()),
       GoRoute(path: '/login', builder: (context, state) => const LoginView()),
       GoRoute(
         path: '/nickname',
@@ -65,4 +70,18 @@ GoRouter appRouter(AppRouterRef ref) {
       GoRoute(path: '/home', builder: (context, state) => const HomeView()),
     ],
   );
+}
+
+/// AuthNotifier의 상태 변화를 GoRouter에 알리기 위한 리스너 클래스
+class RouterNotifier extends ChangeNotifier {
+  final Ref _ref;
+
+  RouterNotifier(this._ref) {
+    _ref.listen(authNotifierProvider, (previous, next) {
+      // 상태(Step)가 변했을 때만 라우터에 알림 (불필요한 리다이렉트 방지)
+      if (previous?.step != next.step) {
+        notifyListeners();
+      }
+    });
+  }
 }
