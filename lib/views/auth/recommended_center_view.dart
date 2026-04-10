@@ -77,7 +77,7 @@ class _RecommendedCenterViewState extends ConsumerState<RecommendedCenterView> {
               Text(
                 '$userName님, 환영해요!',
                 style: const TextStyle(
-                  fontSize: 24,
+                  fontSize: 28,
                   fontWeight: FontWeight.bold,
                   letterSpacing: -0.5,
                 ),
@@ -110,7 +110,7 @@ class _RecommendedCenterViewState extends ConsumerState<RecommendedCenterView> {
                     ],
                   ),
                   style: const TextStyle(
-                    fontSize: 20,
+                    fontSize: 22,
                     fontWeight: FontWeight.w600,
                     height: 1.4,
                   ),
@@ -194,31 +194,16 @@ class _RecommendedCenterViewState extends ConsumerState<RecommendedCenterView> {
                   ),
                 ),
 
-              const SizedBox(height: 40),
+              const Spacer(),
 
               // 하단 버튼
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: () {
-                    ref.read(authNotifierProvider.notifier).finishOnboarding();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: const Text(
-                    '시작하기',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
+              ElevatedButton(
+                onPressed: () {
+                  ref.read(authNotifierProvider.notifier).finishOnboarding();
+                },
+                child: const Text('시작하기'),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 40),
             ],
           ),
         ),

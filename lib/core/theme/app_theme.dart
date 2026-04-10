@@ -21,6 +21,8 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
         surface: backgroundColor,
+      ).copyWith(
+        primary: primaryColor,
       ),
       scaffoldBackgroundColor: backgroundColor,
       

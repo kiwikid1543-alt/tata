@@ -208,6 +208,8 @@ class AuthNotifier extends _$AuthNotifier {
   /// 이전 단계로 이동 (온보딩)
   void previousStep() {
     if (state.step == AuthStep.onboardingRecommendation) {
+      state = state.copyWith(step: AuthStep.onboardingQualification);
+    } else if (state.step == AuthStep.onboardingQualification) {
       state = state.copyWith(step: AuthStep.onboardingNickname);
     }
   }
