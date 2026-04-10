@@ -9,6 +9,7 @@ import '../../views/auth/qualification_view.dart';
 import '../../views/auth/recommended_center_view.dart';
 import '../../views/home/home_view.dart';
 import '../../views/splash/splash_view.dart';
+import '../../views/home/location_selection_view.dart';
 import '../../notifier/auth_notifier.dart';
 
 part 'router.g.dart';
@@ -42,7 +43,7 @@ GoRouter appRouter(AppRouterRef ref) {
 
       // 3. 로그인이 된 상태 (성공 단계)
       if (step == AuthStep.success) {
-        if (matchedLocation != '/home') {
+        if (matchedLocation != '/home' && matchedLocation != '/location-selection') {
           return '/home';
         }
         return null;
@@ -89,6 +90,10 @@ GoRouter appRouter(AppRouterRef ref) {
       GoRoute(
         path: '/recommended-center',
         builder: (context, state) => const RecommendedCenterView(),
+      ),
+      GoRoute(
+        path: '/location-selection',
+        builder: (context, state) => const LocationSelectionView(),
       ),
       GoRoute(path: '/home', builder: (context, state) => const HomeView()),
     ],

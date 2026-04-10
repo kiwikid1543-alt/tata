@@ -1,26 +1,26 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'center_notifier.dart';
+part of 'location_notifier.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$centerNotifierHash() => r'a13eda8df3c35a47b8466deac6fdc0fc087f18e6';
+String _$locationNotifierHash() => r'c1a8115fe661b10c0fceb8a20b62c1335aca92fb';
 
-/// See also [CenterNotifier].
-@ProviderFor(CenterNotifier)
-final centerNotifierProvider = AutoDisposeNotifierProvider<CenterNotifier,
-    AsyncValue<CenterEntity?>>.internal(
-  CenterNotifier.new,
-  name: r'centerNotifierProvider',
+/// See also [LocationNotifier].
+@ProviderFor(LocationNotifier)
+final locationNotifierProvider =
+    AutoDisposeNotifierProvider<LocationNotifier, LocationState>.internal(
+  LocationNotifier.new,
+  name: r'locationNotifierProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$centerNotifierHash,
+      : _$locationNotifierHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$CenterNotifier = AutoDisposeNotifier<AsyncValue<CenterEntity?>>;
+typedef _$LocationNotifier = AutoDisposeNotifier<LocationState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

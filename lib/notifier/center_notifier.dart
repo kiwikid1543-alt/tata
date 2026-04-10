@@ -1,8 +1,8 @@
 // lib/notifier/center_notifier.dart
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../core/services/location_service.dart';
 import '../core/utils/result.dart';
+import 'location_notifier.dart';
 import '../models/entities/center_entity.dart';
 import '../models/repositories/center_repository_impl.dart';
 import 'auth_notifier.dart';
@@ -20,21 +20,16 @@ class CenterNotifier extends _$CenterNotifier {
   Future<void> findAndSaveNearestCenter() async {
     state = const AsyncValue.loading();
 
-    // 1. 현재 위치 가져오기 (이 시점에 권한은 이미 UI에서 처리되었어야 함)
-    final position = await LocationService.getCurrentPosition();
-    if (position == null) {
-      state = AsyncValue.error(
-        '위치 정보를 가져올 수 없습니다. 설정에서 위치 권한을 확인해주세요.',
-        StackTrace.current,
-      );
-      return;
-    }
+    // 1. 현재 설정된 위치 정보 가져오기 (Real GPS 또는 Mocked)
+    final location = ref.read(locationNotifierProvider);
+    double latitude = location.latitude;
+    double longitude = location.longitude;
 
     // 2. 가장 가까운 센터 1개 조회
     final repository = ref.read(centerRepositoryProvider);
     final result = await repository.getNearestCenters(
-      latitude: position.latitude,
-      longitude: position.longitude,
+      latitude: latitude,
+      longitude: longitude,
       count: 1,
     );
 

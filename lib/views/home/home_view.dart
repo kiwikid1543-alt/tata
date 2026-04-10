@@ -1,46 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../notifier/location_notifier.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends ConsumerWidget {
   const HomeView({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locationState = ref.watch(locationNotifierProvider);
+
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        actions: [
+          TextButton.icon(
+            onPressed: () => context.push('/location-selection'),
+            icon: const Icon(
+              Icons.location_on_outlined,
+              color: Colors.black54,
+              size: 20,
+            ),
+            label: Text(
+              locationState.name,
+              style: const TextStyle(
+                color: Colors.black54,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: Container(
         width: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.white,
-              Theme.of(context).primaryColor.withValues(alpha: 0.05),
-            ],
-          ),
-        ),
+        decoration: BoxDecoration(),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              '타타',
-              style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                fontSize: 48,
-                fontWeight: FontWeight.w900,
-                letterSpacing: -1.5,
-                color: Theme.of(context).primaryColor,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Ta Ta',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Colors.grey[400],
-                letterSpacing: 4.0,
-                fontWeight: FontWeight.w300,
-              ),
-            ),
-          ],
+          children: [],
         ),
       ),
     );
