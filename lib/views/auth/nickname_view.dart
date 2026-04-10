@@ -69,10 +69,10 @@ class _NicknameViewState extends ConsumerState<NicknameView> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-          onPressed: () => context.pop(),
-        ),
+        // leading: IconButton(
+        //   icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+        //   onPressed: () => context.pop(),
+        // ),
       ),
       body: SafeArea(
         child: Padding(

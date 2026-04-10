@@ -79,7 +79,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                     authState.step == AuthStep.error ||
                     authState.step == AuthStep.smsSent,
                 decoration: const InputDecoration(
-                  hintText: '010-1234-5678',
+                  // hintText: '010-1234-5678',
                   prefixIcon: Icon(Icons.phone_android, color: Colors.grey),
                 ),
               ),
@@ -141,7 +141,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
               else
                 // 인증번호 요청 중이거나 이미 발송된 경우
                 ElevatedButton(
-                  onPressed: (authState.step == AuthStep.authenticating &&
+                  onPressed:
+                      (authState.step == AuthStep.authenticating &&
                           authState.verificationId != null)
                       ? null // 실제 인증 확인 중일 때만 비활성화
                       : () {
@@ -150,7 +151,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
                             authNotifier.loginWithOtp(otp);
                           }
                         },
-                  child: (authState.step == AuthStep.authenticating &&
+                  child:
+                      (authState.step == AuthStep.authenticating &&
                           authState.verificationId != null)
                       ? const SizedBox(
                           height: 20,
