@@ -69,6 +69,18 @@ class LocationSelectionView extends ConsumerWidget {
           _buildLocationTile(
             context,
             ref,
+            title: '대구시청',
+            subtitle: '대구광역시 중구 (35.8714, 128.6014)',
+            isSelected: locationState.isMocked && locationState.name == '대구시청',
+            onTap: () {
+              locationNotifier.setMockLocation('대구시청', 35.8714, 128.6014);
+              ref.read(centerNotifierProvider.notifier).findNearestCenter();
+              Navigator.pop(context);
+            },
+          ),
+          _buildLocationTile(
+            context,
+            ref,
             title: '인천시청',
             subtitle: '인천광역시 남동구 (37.4563, 126.7052)',
             isSelected: locationState.isMocked && locationState.name == '인천시청',
@@ -106,17 +118,21 @@ class LocationSelectionView extends ConsumerWidget {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
       title: Text(
-        title, 
+        title,
         style: TextStyle(
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           color: isSelected ? Theme.of(context).primaryColor : Colors.black87,
-        )
+        ),
       ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(color: isSelected ? Theme.of(context).primaryColor.withValues(alpha: 0.6) : Colors.grey),
+        style: TextStyle(
+          color: isSelected
+              ? Theme.of(context).primaryColor.withValues(alpha: 0.6)
+              : Colors.grey,
+        ),
       ),
-      trailing: isSelected 
+      trailing: isSelected
           ? Icon(Icons.check_circle, color: Theme.of(context).primaryColor)
           : const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
       onTap: onTap,
