@@ -4,22 +4,26 @@ class AuthUser {
   final String uid;
   final String? phoneNumber;
   final String? displayName;
+  final String? nearestCenterName;
 
   const AuthUser({
     required this.uid,
     this.phoneNumber,
     this.displayName,
+    this.nearestCenterName,
   });
 
   AuthUser copyWith({
     String? uid,
     String? phoneNumber,
     String? displayName,
+    String? nearestCenterName,
   }) {
     return AuthUser(
       uid: uid ?? this.uid,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       displayName: displayName ?? this.displayName,
+      nearestCenterName: nearestCenterName ?? this.nearestCenterName,
     );
   }
 
@@ -29,6 +33,7 @@ class AuthUser {
       uid: data['uid'] as String,
       phoneNumber: data['phoneNumber'] as String?,
       displayName: data['displayName'] as String?,
+      nearestCenterName: data['nearestCenterName'] as String?,
     );
   }
 
@@ -38,6 +43,7 @@ class AuthUser {
       'uid': uid,
       'phoneNumber': phoneNumber,
       'displayName': displayName,
+      'nearestCenterName': nearestCenterName,
     };
   }
 

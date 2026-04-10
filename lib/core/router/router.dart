@@ -6,6 +6,7 @@ import '../../views/auth/login_view.dart';
 import '../../views/auth/nickname_view.dart';
 import '../../views/auth/qualification_view.dart';
 import '../../views/auth/qualification_view.dart';
+import '../../views/auth/recommended_center_view.dart';
 import '../../views/home/home_view.dart';
 import '../../views/splash/splash_view.dart';
 import '../../notifier/auth_notifier.dart';
@@ -48,9 +49,23 @@ GoRouter appRouter(AppRouterRef ref) {
       }
 
       // 4. 온보딩 단계 가드 (잘못된 접근 차단)
-      final isOnboardingPath = matchedLocation == '/nickname' || matchedLocation == '/qualification';
+      final isOnboardingPath = matchedLocation == '/nickname' || 
+                              matchedLocation == '/qualification' || 
+                              matchedLocation == '/recommended-center';
+
       if (isOnboardingPath && isNotLoggedIn) {
         return '/login';
+      }
+
+      // 5. 이미 로그인된 유저의 단계별 강제 리다이렉트 (온보딩 필수 관문)
+      if (step == AuthStep.onboardingNickname && matchedLocation != '/nickname') {
+        return '/nickname';
+      }
+      if (step == AuthStep.onboardingQualification && matchedLocation != '/qualification') {
+        return '/qualification';
+      }
+      if (step == AuthStep.onboardingRecommendation && matchedLocation != '/recommended-center') {
+        return '/recommended-center';
       }
 
       return null;
@@ -66,6 +81,10 @@ GoRouter appRouter(AppRouterRef ref) {
       GoRoute(
         path: '/qualification',
         builder: (context, state) => const QualificationView(),
+      ),
+      GoRoute(
+        path: '/recommended-center',
+        builder: (context, state) => const RecommendedCenterView(),
       ),
       GoRoute(path: '/home', builder: (context, state) => const HomeView()),
     ],

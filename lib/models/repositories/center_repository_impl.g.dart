@@ -1,25 +1,25 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'auth_repository_impl.dart';
+part of 'center_repository_impl.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$authRepositoryHash() => r'c0d7f0b61d448530da9d0be416c508943fd31461';
+String _$centerRepositoryHash() => r'adb2558d18c02acf7fe215f254a0b55f8b691887';
 
-/// See also [authRepository].
-@ProviderFor(authRepository)
-final authRepositoryProvider = AutoDisposeProvider<AuthRepository>.internal(
-  authRepository,
-  name: r'authRepositoryProvider',
+/// See also [centerRepository].
+@ProviderFor(centerRepository)
+final centerRepositoryProvider = AutoDisposeProvider<CenterRepository>.internal(
+  centerRepository,
+  name: r'centerRepositoryProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$authRepositoryHash,
+      : _$centerRepositoryHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef AuthRepositoryRef = AutoDisposeProviderRef<AuthRepository>;
+typedef CenterRepositoryRef = AutoDisposeProviderRef<CenterRepository>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

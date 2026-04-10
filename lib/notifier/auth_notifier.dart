@@ -15,7 +15,8 @@ enum AuthStep {
   success,
   error,
   onboardingNickname,
-  onboardingQualification
+  onboardingQualification,
+  onboardingRecommendation
 }
 
 class AuthState {
@@ -159,7 +160,7 @@ class AuthNotifier extends _$AuthNotifier {
     
     state = state.copyWith(
       user: state.user!.copyWith(displayName: nickname),
-      step: AuthStep.onboardingQualification,
+      step: AuthStep.onboardingRecommendation,
     );
   }
 
@@ -174,10 +175,28 @@ class AuthNotifier extends _$AuthNotifier {
 
     switch (result) {
       case Success():
-        state = state.copyWith(step: AuthStep.success);
+        // 가입 완료 후 추천 단계로 진입
+        state = state.copyWith(step: AuthStep.onboardingRecommendation);
       case Error(failure: final f):
         state = state.copyWith(step: AuthStep.error, errorMessage: f.message);
     }
+  }
+
+  /// 모든 온보딩 프로세스 완료 및 홈으로 이동
+  void finishOnboarding() {
+    state = state.copyWith(step: AuthStep.success);
+  }
+
+  /// 가장 가까운 센터 정보 업데이트
+  Future<void> updateNearestCenter(String centerName) async {
+    if (state.user == null) return;
+
+    final updatedUser = state.user!.copyWith(nearestCenterName: centerName);
+    state = state.copyWith(user: updatedUser);
+
+    // Firestore에 동기화
+    final repository = ref.read(authRepositoryProvider);
+    await repository.updateProfile(updatedUser);
   }
 
   /// 로그아웃
