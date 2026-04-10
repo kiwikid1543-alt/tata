@@ -49,22 +49,26 @@ GoRouter appRouter(AppRouterRef ref) {
       }
 
       // 4. 온보딩 단계 가드 (잘못된 접근 차단)
-      final isOnboardingPath = matchedLocation == '/nickname' || 
-                              matchedLocation == '/qualification' || 
-                              matchedLocation == '/recommended-center';
+      final isOnboardingPath =
+          matchedLocation == '/nickname' ||
+          matchedLocation == '/qualification' ||
+          matchedLocation == '/recommended-center';
 
       if (isOnboardingPath && isNotLoggedIn) {
         return '/login';
       }
 
       // 5. 이미 로그인된 유저의 단계별 강제 리다이렉트 (온보딩 필수 관문)
-      if (step == AuthStep.onboardingNickname && matchedLocation != '/nickname') {
+      if (step == AuthStep.onboardingNickname &&
+          matchedLocation != '/nickname') {
         return '/nickname';
       }
-      if (step == AuthStep.onboardingQualification && matchedLocation != '/qualification') {
+      if (step == AuthStep.onboardingQualification &&
+          matchedLocation != '/qualification') {
         return '/qualification';
       }
-      if (step == AuthStep.onboardingRecommendation && matchedLocation != '/recommended-center') {
+      if (step == AuthStep.onboardingRecommendation &&
+          matchedLocation != '/recommended-center') {
         return '/recommended-center';
       }
 

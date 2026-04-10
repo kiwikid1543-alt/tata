@@ -23,7 +23,10 @@ class CenterNotifier extends _$CenterNotifier {
     // 1. 현재 위치 가져오기 (이 시점에 권한은 이미 UI에서 처리되었어야 함)
     final position = await LocationService.getCurrentPosition();
     if (position == null) {
-      state = AsyncValue.error('위치 정보를 가져올 수 없습니다. 설정에서 위치 권한을 확인해주세요.', StackTrace.current);
+      state = AsyncValue.error(
+        '위치 정보를 가져올 수 없습니다. 설정에서 위치 권한을 확인해주세요.',
+        StackTrace.current,
+      );
       return;
     }
 
@@ -40,9 +43,11 @@ class CenterNotifier extends _$CenterNotifier {
         if (centers.isNotEmpty) {
           final nearest = centers.first;
           state = AsyncValue.data(nearest);
-          
+
           // 3. 유저 정보에 가까운 센터명 저장 (AuthNotifier 연동)
-          ref.read(authNotifierProvider.notifier).updateNearestCenter(nearest.name);
+          ref
+              .read(authNotifierProvider.notifier)
+              .updateNearestCenter(nearest.name);
         } else {
           state = const AsyncValue.data(null);
         }
