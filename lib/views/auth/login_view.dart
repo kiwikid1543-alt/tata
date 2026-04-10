@@ -74,13 +74,11 @@ class _LoginViewState extends ConsumerState<LoginView> {
                   PhoneNumberFormatter(),
                   LengthLimitingTextInputFormatter(13),
                 ],
-                enabled:
-                    authState.step == AuthStep.initial ||
-                    authState.step == AuthStep.error ||
-                    authState.step == AuthStep.smsSent,
+                // 인증번호 요청 중(authenticating)에도 색상이 변하지 않도록 활성 상태 유지
+                enabled: true,
                 decoration: const InputDecoration(
-                  // hintText: '010-1234-5678',
                   prefixIcon: Icon(Icons.phone_android, color: Colors.grey),
+                  hintText: '전화번호를 입력해주세요',
                 ),
               ),
               const SizedBox(height: 16),
@@ -97,7 +95,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                       controller: _otpController,
                       keyboardType: TextInputType.number,
                       maxLength: 6,
-                      autofocus: true, // 즉시 입력 가능하도록 포커스
+                      autofocus: true,
                       decoration: const InputDecoration(
                         hintText: '인증번호 6자리 입력',
                         prefixIcon: Icon(
@@ -107,19 +105,29 @@ class _LoginViewState extends ConsumerState<LoginView> {
                         counterText: '',
                       ),
                     ),
-                    if (authState.step == AuthStep.error)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0, left: 4.0),
-                        child: Text(
-                          '인증번호를 확인해주세요',
-                          style: TextStyle(
-                            color: Colors.red[700],
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    const SizedBox(height: 32),
+                    // 에러 메시지 영역 (높이 고정으로 레이아웃 흔들림 방지)
+                    SizedBox(
+                      height: 24, // 메시지 한 줄 분량의 공간 미리 확보
+                      child:
+                          (authState.step == AuthStep.error &&
+                              authState.errorMessage != null)
+                          ? Padding(
+                              padding: const EdgeInsets.only(
+                                top: 4.0,
+                                left: 4.0,
+                              ),
+                              child: Text(
+                                '인증번호가 일치하지 않습니다. 다시 확인해주세요.',
+                                style: TextStyle(
+                                  color: Colors.red[700],
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                    const SizedBox(height: 12),
                   ],
                 ),
 
@@ -165,15 +173,15 @@ class _LoginViewState extends ConsumerState<LoginView> {
                       : const Text('인증'),
                 ),
 
-              const SizedBox(height: 24),
+              // const SizedBox(height: 24),
 
               // 하단 안내
-              Center(
-                child: Text(
-                  '인증번호가 오지 않나요? 다시 시도해 주세요.',
-                  style: TextStyle(color: Colors.grey[600], fontSize: 13),
-                ),
-              ),
+              // Center(
+              //   child: Text(
+              //     '인증번호가 오지 않나요? 다시 시도해 주세요.',
+              //     style: TextStyle(color: Colors.grey[600], fontSize: 13),
+              //   ),
+              // ),
             ],
           ),
         ),
