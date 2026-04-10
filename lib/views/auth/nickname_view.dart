@@ -101,6 +101,15 @@ class _NicknameViewState extends ConsumerState<NicknameView> {
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
+                  const SizedBox(width: 8),
+                  Container(
+                    width: 32,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 24),

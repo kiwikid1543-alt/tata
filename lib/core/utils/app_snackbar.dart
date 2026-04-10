@@ -55,11 +55,7 @@ class AppSnackBar {
         behavior: SnackBarBehavior.floating,
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        margin: const EdgeInsets.only(
-          bottom: 110,
-          left: 24,
-          right: 24,
-        ),
+        margin: const EdgeInsets.only(bottom: 110, left: 24, right: 24),
         duration: const Duration(seconds: 3),
         animation: CurvedAnimation(
           parent: const AlwaysStoppedAnimation(1),

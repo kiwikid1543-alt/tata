@@ -73,6 +73,38 @@ class _RecommendedCenterViewState extends ConsumerState<RecommendedCenterView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
+              // Step Indicator
+              Row(
+                children: [
+                  Container(
+                    width: 32,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    width: 32,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    width: 32,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
               // 헤더 섹션
               Text(
                 '$userName님, 환영해요!',
@@ -194,13 +226,13 @@ class _RecommendedCenterViewState extends ConsumerState<RecommendedCenterView> {
                   ),
                 ),
 
-              const Spacer(),
+              const SizedBox(height: 16),
 
               // 하단 버튼
               ElevatedButton(
-                onPressed: () {
-                  ref.read(authNotifierProvider.notifier).finishOnboarding();
-                },
+                onPressed: centerState.value != null
+                    ? () => ref.read(authNotifierProvider.notifier).finishOnboarding()
+                    : null,
                 child: const Text('시작하기'),
               ),
               const SizedBox(height: 40),
