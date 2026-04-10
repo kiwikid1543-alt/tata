@@ -149,16 +149,18 @@ class _LoginViewState extends ConsumerState<LoginView> {
               else
                 // 인증번호 요청 중이거나 이미 발송된 경우
                 ElevatedButton(
-                  onPressed:
-                      (authState.step == AuthStep.authenticating &&
-                          authState.verificationId != null)
-                      ? null // 실제 인증 확인 중일 때만 비활성화
-                      : () {
-                          final otp = _otpController.text.trim();
-                          if (otp.length == 6) {
-                            authNotifier.loginWithOtp(otp);
-                          }
-                        },
+                  onPressed: () {
+                    // 이미 인증 확인 중이면 중복 클릭 방지
+                    if (authState.step == AuthStep.authenticating &&
+                        authState.verificationId != null) {
+                      return;
+                    }
+
+                    final otp = _otpController.text.trim();
+                    if (otp.length == 6) {
+                      authNotifier.loginWithOtp(otp);
+                    }
+                  },
                   child:
                       (authState.step == AuthStep.authenticating &&
                           authState.verificationId != null)
