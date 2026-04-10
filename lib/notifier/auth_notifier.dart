@@ -58,10 +58,13 @@ class AuthNotifier extends _$AuthNotifier {
   /// 초기 세션 체크 로직
   Future<void> _initSession() async {
     final repository = ref.read(authRepositoryProvider);
+    
+    // 1. 서버와 유저 상태 동기화 (콘솔에서 삭제되었는지 확인)
+    final reloadResult = await repository.reloadUser();
     final currentUser = repository.currentUser;
 
-    if (currentUser != null) {
-      // 기존 세션이 있다면 프로필 동기화 시도
+    if (currentUser != null && reloadResult is Success) {
+      // 2. 유저 세션이 유효한 경우 프로필 동기화 시도
       final result = await repository.getProfile(currentUser.uid);
       switch (result) {
         case Success(data: final profile):
@@ -72,11 +75,14 @@ class AuthNotifier extends _$AuthNotifier {
             state = state.copyWith(step: AuthStep.onboardingNickname, user: currentUser);
           }
         case Error():
-          // 프로필 로드 실패 시 일단 로그인 화면으로 (안전하게)
           state = state.copyWith(step: AuthStep.initial);
       }
     } else {
-      // 로그인 세션 없음
+      // 3. 서버에서 유저가 삭제되었거나 세션이 없는 경우
+      if (currentUser != null) {
+        // 부적절하거나 만료된 세션이 남아있다면 강제 로그아웃하여 정리
+        await repository.signOut();
+      }
       state = state.copyWith(step: AuthStep.initial);
     }
   }

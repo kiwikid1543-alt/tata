@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:tata/core/theme/app_theme.dart';
+import '../../core/utils/app_snackbar.dart';
 import '../../notifier/auth_notifier.dart';
 
 class NicknameView extends ConsumerStatefulWidget {
@@ -12,6 +14,38 @@ class NicknameView extends ConsumerStatefulWidget {
 
 class _NicknameViewState extends ConsumerState<NicknameView> {
   final _nicknameController = TextEditingController();
+  String _statusMessage = '';
+  Color _statusColor = Colors.grey;
+  bool _isValid = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _nicknameController.addListener(_validateNickname);
+  }
+
+  void _validateNickname() {
+    final text = _nicknameController.text.trim();
+    setState(() {
+      if (text.isEmpty) {
+        _statusMessage = '';
+        _isValid = false;
+      } else if (text.length < 2 || text.length > 10) {
+        _statusMessage = '2글자에서 10글자 사이로 입력해주세요';
+        _statusColor = Colors.red;
+        _isValid = false;
+      } else if (text == 'admin' || text == 'test') {
+        // 데모용 중복 검사 시뮬레이션
+        _statusMessage = '이미 사용 중인 닉네임입니다';
+        _statusColor = Colors.red;
+        _isValid = false;
+      } else {
+        _statusMessage = '사용 가능한 닉네임입니다';
+        _statusColor = AppTheme.primaryColor; // AppTheme.accentColor 가이드 참고
+        _isValid = true;
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -89,18 +123,44 @@ class _NicknameViewState extends ConsumerState<NicknameView> {
               TextField(
                 controller: _nicknameController,
                 autofocus: true,
-                decoration: const InputDecoration(
-                  hintText: '닉네임 (2~10자)',
-                ),
+                decoration: const InputDecoration(hintText: '닉네임 (2~10자)'),
               ),
+              if (_statusMessage.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8, left: 4),
+                  child: Text(
+                    _statusMessage,
+                    style: TextStyle(
+                      color: _statusColor,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
               const Spacer(),
 
               ElevatedButton(
                 onPressed: () {
                   final nickname = _nicknameController.text.trim();
-                  if (nickname.length >= 2) {
-                    authNotifier.setNickname(nickname);
+                  if (nickname.length < 2 || nickname.length > 10) {
+                    AppSnackBar.show(
+                      context,
+                      message: '2글자에서 10글자 사이로 입력해주세요',
+                      type: SnackBarType.error,
+                    );
+                    return;
                   }
+
+                  if (!_isValid) {
+                    AppSnackBar.show(
+                      context,
+                      message: '닉네임을 다시 확인해주세요',
+                      type: SnackBarType.error,
+                    );
+                    return;
+                  }
+
+                  authNotifier.setNickname(nickname);
                 },
                 child: const Text('다음으로'),
               ),

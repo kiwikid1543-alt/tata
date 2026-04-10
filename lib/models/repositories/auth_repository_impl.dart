@@ -124,6 +124,25 @@ class AuthRepositoryImpl implements AuthRepository {
       return Result.failure(Failure('프로필 정보를 저장하지 못했습니다.', originalError: e));
     }
   }
+
+  @override
+  Future<Result<void>> reloadUser() async {
+    try {
+      final user = _auth.currentUser;
+      if (user != null) {
+        await user.reload();
+        return Result.success(null);
+      }
+      return Result.failure(const Failure('로그인된 사용자가 없습니다.'));
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        return Result.failure(const Failure('사용자 계정이 삭제되었습니다.'));
+      }
+      return Result.failure(Failure(e.message ?? '사용자 정보를 갱신하지 못했습니다.', originalError: e));
+    } catch (e) {
+      return Result.failure(Failure('사용자 상태 확인 중 오류가 발생했습니다.', originalError: e));
+    }
+  }
 }
 
 @riverpod

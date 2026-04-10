@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/utils/app_snackbar.dart';
 import '../../notifier/auth_notifier.dart';
 
 class QualificationView extends ConsumerWidget {
@@ -67,10 +68,10 @@ class QualificationView extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                '안전한 서비스를 위해 자격 확인이 필요합니다.',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Colors.grey[600],
-                ),
+                '서비스를 위해 자격 확인이 필요합니다.',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
               ),
               const SizedBox(height: 48),
 
@@ -82,7 +83,9 @@ class QualificationView extends ConsumerWidget {
                   color: Theme.of(context).primaryColor.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
+                    color: Theme.of(
+                      context,
+                    ).primaryColor.withValues(alpha: 0.2),
                     width: 1.5,
                   ),
                 ),
@@ -95,7 +98,7 @@ class QualificationView extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                     const Text(
-                      '운전면허증 인증',
+                      '인증',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -103,15 +106,17 @@ class QualificationView extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '서비스 이용을 위해 면허 정보를 등록하세요.',
+                      '서비스 이용을 위해 정보를 등록하세요.',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.grey[600]),
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton(
                       onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('데모 버전에서는 자동으로 인증됩니다.')),
+                        AppSnackBar.show(
+                          context,
+                          message: '데모 버전에서는 자동으로 인증됩니다.',
+                          type: SnackBarType.success,
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -125,9 +130,9 @@ class QualificationView extends ConsumerWidget {
                   ],
                 ),
               ),
-              
+
               const Spacer(),
-              
+
               ElevatedButton(
                 onPressed: authState.step == AuthStep.authenticating
                     ? null

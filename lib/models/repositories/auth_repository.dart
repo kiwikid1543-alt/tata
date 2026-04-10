@@ -27,4 +27,7 @@ abstract interface class AuthRepository {
 
   /// Firestore에 유저 프로필 정보 저장/업데이트
   Future<Result<void>> updateProfile(AuthUser user);
+
+  /// 서버에서 현재 유저의 상태를 새로고침 (계정 삭제 여부 등 확인)
+  Future<Result<void>> reloadUser();
 }

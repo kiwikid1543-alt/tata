@@ -64,20 +64,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
               ),
               const SizedBox(height: 48),
 
-              // 에러 메시지 표시
-              if (authState.step == AuthStep.error)
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.red[50],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    authState.errorMessage ?? '오류가 발생했습니다.',
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ),
+              const SizedBox(height: 48),
 
               // 전화번호 입력 필드
               TextField(
@@ -87,8 +74,10 @@ class _LoginViewState extends ConsumerState<LoginView> {
                   PhoneNumberFormatter(),
                   LengthLimitingTextInputFormatter(13),
                 ],
-                enabled: authState.step == AuthStep.initial ||
-                    authState.step == AuthStep.error,
+                enabled:
+                    authState.step == AuthStep.initial ||
+                    authState.step == AuthStep.error ||
+                    authState.step == AuthStep.smsSent,
                 decoration: const InputDecoration(
                   hintText: '010-1234-5678',
                   prefixIcon: Icon(Icons.phone_android, color: Colors.grey),
@@ -96,15 +85,19 @@ class _LoginViewState extends ConsumerState<LoginView> {
               ),
               const SizedBox(height: 16),
 
-              // OTP 입력 필드 (인증번호 발송된 경우만 표시)
+              // OTP 입력 필드 (인증번호 요청 중이거나 발송된 경우 표시)
               if (authState.step == AuthStep.smsSent ||
-                  authState.step == AuthStep.authenticating)
+                  authState.step == AuthStep.authenticating ||
+                  (authState.step == AuthStep.error &&
+                      authState.verificationId != null))
                 Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     TextField(
                       controller: _otpController,
                       keyboardType: TextInputType.number,
                       maxLength: 6,
+                      autofocus: true, // 즉시 입력 가능하도록 포커스
                       decoration: const InputDecoration(
                         hintText: '인증번호 6자리 입력',
                         prefixIcon: Icon(
@@ -114,6 +107,18 @@ class _LoginViewState extends ConsumerState<LoginView> {
                         counterText: '',
                       ),
                     ),
+                    if (authState.step == AuthStep.error)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0, left: 4.0),
+                        child: Text(
+                          '인증번호를 확인해주세요',
+                          style: TextStyle(
+                            color: Colors.red[700],
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
                     const SizedBox(height: 32),
                   ],
                 ),
@@ -121,8 +126,9 @@ class _LoginViewState extends ConsumerState<LoginView> {
               const SizedBox(height: 16),
 
               // 버튼 영역
-              if (authState.step == AuthStep.initial ||
-                  authState.step == AuthStep.error)
+              // 아직 요청 전(initial/error)이면서 로딩 중이 아닐 때만 '발송' 버튼 노출
+              if (authState.verificationId == null &&
+                  authState.step != AuthStep.authenticating)
                 ElevatedButton(
                   onPressed: () {
                     final phone = _phoneController.text.trim();
@@ -130,29 +136,22 @@ class _LoginViewState extends ConsumerState<LoginView> {
                       authNotifier.requestOtp(phone);
                     }
                   },
-                  child: authState.step == AuthStep.authenticating
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : const Text('인증번호 받기'),
+                  child: const Text('인증번호 받기'),
                 )
-              else if (authState.step == AuthStep.smsSent ||
-                  authState.step == AuthStep.authenticating)
+              else
+                // 인증번호 요청 중이거나 이미 발송된 경우
                 ElevatedButton(
-                  onPressed: authState.step == AuthStep.authenticating
-                      ? null
+                  onPressed: (authState.step == AuthStep.authenticating &&
+                          authState.verificationId != null)
+                      ? null // 실제 인증 확인 중일 때만 비활성화
                       : () {
                           final otp = _otpController.text.trim();
                           if (otp.length == 6) {
                             authNotifier.loginWithOtp(otp);
                           }
                         },
-                  child: authState.step == AuthStep.authenticating
+                  child: (authState.step == AuthStep.authenticating &&
+                          authState.verificationId != null)
                       ? const SizedBox(
                           height: 20,
                           width: 20,
@@ -161,7 +160,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                             strokeWidth: 2,
                           ),
                         )
-                      : const Text('로그인'),
+                      : const Text('인증'),
                 ),
 
               const SizedBox(height: 24),
