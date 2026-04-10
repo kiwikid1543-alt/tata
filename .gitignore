@@ -43,3 +43,28 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firebase configuration files (Sensitive)
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+lib/firebase_options.dart
+firebase.json
+.firebaserc
+
+# Environment variables
+.env
+.env.*
+
+# Local/IDE settings
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# Flutter/Dart temp
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
